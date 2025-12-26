@@ -55,11 +55,12 @@ const int KERNEL_SHARPEN[3][3] = {
 
 // --- HÀM 1: XỬ LÝ TUẦN TỰ (KHÔNG DÙNG OPENMP) ---
 void processSequential(const Image& input, Image& output, const int kernel[3][3], int divisor) {
+    // Khởi tạo ảnh đầu ra
     int w = input.width; int h = input.height;
     output.width = w; output.height = h; output.channels = 1;
     output.pixels.resize(w * h);
 
-    // Chạy 1 luồng duy nhất
+    // Vòng lặp xử lý từng điểm ảnh
     for (int y = 1; y < h - 1; y++) {
         for (int x = 1; x < w - 1; x++) {
             int sum = 0;
@@ -68,6 +69,7 @@ void processSequential(const Image& input, Image& output, const int kernel[3][3]
                     sum += input.pixels[(y + ky) * w + (x + kx)] * kernel[ky + 1][kx + 1];
                 }
             }
+            // Chuẩn hóa giá trị
             sum /= divisor;
             if (sum < 0) sum = 0; if (sum > 255) sum = 255;
             output.pixels[y * w + x] = (unsigned char)sum;
@@ -77,12 +79,13 @@ void processSequential(const Image& input, Image& output, const int kernel[3][3]
 
 // --- HÀM 2: XỬ LÝ SONG SONG (DÙNG OPENMP) ---
 void processOpenMP(const Image& input, Image& output, const int kernel[3][3], int divisor) {
+    // Khởi tạo ảnh đầu ra
     int w = input.width; int h = input.height;
     output.width = w; output.height = h; output.channels = 1;
     output.pixels.resize(w * h);
 
-    // Chia việc cho nhiều luồng
-    #pragma omp parallel for collapse(2)
+    // Chỉ thị OpenMP: Tạo vùng song song và chia việc
+    #pragma omp parallel for collapse(2)  
     for (int y = 1; y < h - 1; y++) {
         for (int x = 1; x < w - 1; x++) {
             int sum = 0;
@@ -99,6 +102,17 @@ void processOpenMP(const Image& input, Image& output, const int kernel[3][3], in
 }
 
 int main() {
+    #pragma omp parallel
+    {
+        #pragma omp single
+        {
+            cout << "--- CAU HINH OPENMP ---" << endl;
+            cout << "So luong luong (Threads) dang chay: " << omp_get_max_threads() << endl;
+            cout << "So luong vi xu ly (Procs) co san: "   << omp_get_num_procs() << endl;
+            cout << "-----------------------" << endl;
+        }
+    }
+
     string inputFolder = "data";
     string outSeqFolder = "output_sequential";
     string outOmpFolder = "output_openmp";

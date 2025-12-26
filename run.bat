@@ -1,0 +1,1 @@
+g++ main.cpp -o main -fopenmp -std=c++17 && main
