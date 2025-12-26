@@ -77,7 +77,9 @@ void processOpenMP(const Image& input, Image& output, const int kernel[3][3], in
     output.width = w; output.height = h; output.channels = 1;
     output.pixels.resize(w * h);
 
-    #pragma omp parallel for collapse(2)  
+    #pragma omp parallel for collapse(2) \
+        schedule(static) \
+        shared(input, output, kernel, divisor, w, h)
     for (int y = 1; y < h - 1; y++) {
         for (int x = 1; x < w - 1; x++) {
             int sum = 0;
