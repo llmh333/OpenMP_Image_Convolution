@@ -94,6 +94,10 @@ void processOpenMP(const Image& input, Image& output, const int kernel[3][3], in
 }
 
 int main() {
+    int num_thread;
+    cout << "So luong muon chay: ";
+    cin >> num_thread;
+    omp_set_num_threads(num_thread);
     #pragma omp parallel
     {
         #pragma omp single
@@ -138,7 +142,7 @@ int main() {
         processSequential(imgIn, imgBlur, KERNEL_BLUR, 9);
         processSequential(imgBlur, imgFinal, KERNEL_SHARPEN, 1);
         auto end = high_resolution_clock::now();
-        
+
         duration<double> diffSeq = end - start;
         totalTimeSeq += diffSeq.count();
         
