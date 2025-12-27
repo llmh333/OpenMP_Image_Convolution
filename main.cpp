@@ -33,15 +33,14 @@ Image loadImage(const string& filename) {
     return img;
 }
 
-// Hàm lưu ảnh
 void saveImage(const string& filename, const Image& img) {
     stbi_write_jpg(filename.c_str(), img.width, img.height, 1, img.pixels.data(), 100);
 }
 
 const int KERNEL_BLUR[3][3] = {
-    { 1, 1, 1 },
-    { 1, 1, 1 },
-    { 1, 1, 1 }
+    { 1, 2, 1 },
+    { 2, 4, 2 },
+    { 1, 2, 1 }
 };
 
 const int KERNEL_SHARPEN[3][3] = {
@@ -141,7 +140,7 @@ int main() {
         Image imgBlur, imgFinal;
         
         auto start = high_resolution_clock::now();
-        processSequential(imgIn, imgBlur, KERNEL_BLUR, 9);
+        processSequential(imgIn, imgBlur, KERNEL_BLUR, 16);
         processSequential(imgBlur, imgFinal, KERNEL_SHARPEN, 1);
         auto end = high_resolution_clock::now();
 
@@ -152,7 +151,7 @@ int main() {
 
 
         start = high_resolution_clock::now();
-        processOpenMP(imgIn, imgBlur, KERNEL_BLUR, 9);
+        processOpenMP(imgIn, imgBlur, KERNEL_BLUR, 16);
         processOpenMP(imgBlur, imgFinal, KERNEL_SHARPEN, 1);
         end = high_resolution_clock::now();
 
